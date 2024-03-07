@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "aos": "^2.3.4",
+    "sweetalert": "^2.1.2",
+    "qrcode-generator": "^1.4.4"
+  }
+}
