@@ -30,11 +30,11 @@ if (isset($_SESSION['operador']) || isset($_SESSION['usuario'])) {
 
     $timezone = new DateTimeZone('America/Santiago');
     $now = new DateTime("now", $timezone); 
-    echo $fecha = $now->format("Y-m-d H:i:s");
+    $fecha = $now->format("Y-m-d H:i:s");
     $hora = $now->format("H:i:s"); 
     $fechaFormateada = $now->format("d-m-Y"); 
     $finTime = $now->add(new DateInterval('PT2H'));
-    echo $finTimeFormatted = $finTime->format("Y-m-d H:i:s");
+    $finTimeFormatted = $finTime->format("Y-m-d H:i:s");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -208,7 +208,13 @@ if (isset($_SESSION['operador']) || isset($_SESSION['usuario'])) {
     <form id="miFormulario" action="saveRespuestas.php" method="post">
     <?php
     // busca si el usuario ya realizo el examen
-    $chequear = mysqli_query($conn, "SELECT * FROM detallle_ot WHERE rut = '$usuario' AND equipo = '$prueba' AND date_in != '0000-00-00 00:00:00' AND resultado != 'APROBADO' AND doc != ''");
+    $OT = '';
+    $data_ot = mysqli_query($conn, "SELECT * FROM detallle_ot WHERE rut = '$usuario' AND equipo = '$prueba' AND date_in = '0000-00-00 00:00:00' AND date_out = '0000-00-00 00:00:00'  AND resultado = '' AND datefin = '0000-00-00 00:00:00'");
+    while($data_rs = mysqli_fetch_array($data_ot)){
+        $OT = $data_rs['id'];
+    }
+
+    $chequear = mysqli_query($conn, "SELECT * FROM detallle_ot WHERE id = '$OT' AND rut = '$usuario' AND equipo = '$prueba' AND date_in != '0000-00-00 00:00:00' AND resultado != 'APROBADO' AND doc != ''");
     if (mysqli_num_rows($chequear) > 0) {
         echo 'El usuario ya realizó el examen.';
     } else {
@@ -237,7 +243,7 @@ if (isset($_SESSION['operador']) || isset($_SESSION['usuario'])) {
         $n = 1;
         foreach ($buscarExamen as $mostrar) {
             echo '<section class="pregunta" data-id="' . $mostrar['id'] . '">';
-            echo '<h5 name="pregunta' . $mostrar['id'] . '">'.$n.'. ' . $mostrar['PREGUNTA'] .' '.$mostrar['id'].' '.$mostrar['codigo'].' '.$mostrar['estado'].'</h5>';
+            echo '<h5 name="pregunta' . $mostrar['id'] . '">'.$n.'. ' . $mostrar['PREGUNTA'] .' ' . $mostrar['estado'] .'</h5>';
             echo '<label><input type="radio" name="p' . $mostrar['id'] . '" value="1"> ' . $mostrar['R1'] . '</label>';
             echo '<label><input type="radio" name="p' . $mostrar['id'] . '" value="2"> ' . $mostrar['R2'] . '</label>';
             echo '<label><input type="radio" name="p' . $mostrar['id'] . '" value="3"> ' . $mostrar['R3'] . '</label>';
@@ -247,6 +253,7 @@ if (isset($_SESSION['operador']) || isset($_SESSION['usuario'])) {
         }
         echo '<input type="hidden" name="rut" value="' . $usuario . '">';
         echo '<input type="hidden" name="equipo" value="' . $prueba . '">';
+        echo '<input type="hidden" name="ot" value="'.$OT.'">';
         echo '<button type="button" id="enviarRespuestas" title="ENVIAR RESPUESTAS">ENVIAR RESPUESTAS</button>';
     }
     ?>

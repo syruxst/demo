@@ -131,46 +131,58 @@ $E = $row_i['equipo'];
         <tr>
             <td colspan="3" class="color" style="padding: 10px; font-size: 16px;">
                 <?php 
-                    $query = "SELECT * FROM examenes WHERE id_oper = ? AND equipo = ? AND date_realizada = ?";
-                    $stmt = mysqli_prepare($conn, $query);
+                    // $query = "SELECT * FROM examenes WHERE id_oper = ? AND equipo = ? AND date_realizada = ?";
+                    // $stmt = mysqli_prepare($conn, $query);
                     
+                    // if ($stmt) {
+                    //     mysqli_stmt_bind_param($stmt, "sss", $row_i['rut'], $row_i['equipo'], $row_i['date_out']);
+                    //     mysqli_stmt_execute($stmt);
+                    //     $result = mysqli_stmt_get_result($stmt);
+                    //     $p_values = array();
+                    //     $r_values = array();
+                    
+                    //     while ($row = mysqli_fetch_assoc($result)) {
+                    //         $resultado = $row['resultado'];
+                    
+                    //         // Almacenar las preguntas y respuestas en arrays
+                    //         for ($i = 1; $i <= 20; $i++) {
+                    //             $p_values[] = $row['p' . $i];
+                    //             $r_values[] = $row['r' . $i];
+                    //         }
+                    //     }
+                    
+                    //     for ($i = 0; $i < 20; $i++) {
+                    //         $num_pregunta = $i + 1;
+                    //         $num_respuesta = $i + 1;
+                    
+                    //         // Utilizar una consulta parametrizada para evitar inyecciones SQL
+                    //         $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$E` WHERE `id` = '{$p_values[$i]}' ");
+                    //         $prueba = mysqli_fetch_array($prueba_stmt);
+                    //         $pregunta = $prueba['PREGUNTA'];
+                    //         $dato = "R" . $r_values[$i];
+                    //         $correcta = $prueba['id_respuesta_correcta'];
+                    //         $respuesta = $prueba[$dato];
+                    
+                    //         if ($r_values[$i] != $correcta) {
+                    //             $color = "red";
+                    //             $estado = "INCORRECTA";
+                    
+                    //             echo "<section class='pregunta'>";
+                    //             echo "{$num_pregunta}.- " . $pregunta . "<br><br>";
+                    //             echo '</section>';
+                    //         }
+                    //     }
+                    // }
+                    $query = "SELECT * FROM `detallle_ot` WHERE rut = ? AND equipo = ? AND date_out = ?";
+                    $stmt = mysqli_prepare($conn, $query);
+
                     if ($stmt) {
                         mysqli_stmt_bind_param($stmt, "sss", $row_i['rut'], $row_i['equipo'], $row_i['date_out']);
                         mysqli_stmt_execute($stmt);
                         $result = mysqli_stmt_get_result($stmt);
-                        $p_values = array();
-                        $r_values = array();
-                    
+
                         while ($row = mysqli_fetch_assoc($result)) {
-                            $resultado = $row['resultado'];
-                    
-                            // Almacenar las preguntas y respuestas en arrays
-                            for ($i = 1; $i <= 20; $i++) {
-                                $p_values[] = $row['p' . $i];
-                                $r_values[] = $row['r' . $i];
-                            }
-                        }
-                    
-                        for ($i = 0; $i < 20; $i++) {
-                            $num_pregunta = $i + 1;
-                            $num_respuesta = $i + 1;
-                    
-                            // Utilizar una consulta parametrizada para evitar inyecciones SQL
-                            $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$E` WHERE `id` = '{$p_values[$i]}' ");
-                            $prueba = mysqli_fetch_array($prueba_stmt);
-                            $pregunta = $prueba['PREGUNTA'];
-                            $dato = "R" . $r_values[$i];
-                            $correcta = $prueba['id_respuesta_correcta'];
-                            $respuesta = $prueba[$dato];
-                    
-                            if ($r_values[$i] != $correcta) {
-                                $color = "red";
-                                $estado = "INCORRECTA";
-                    
-                                echo "<section class='pregunta'>";
-                                echo "{$num_pregunta}.- " . $pregunta . "<br><br>";
-                                echo '</section>';
-                            }
+                            echo $row['brecha_tco'];
                         }
                     }
                 ?>
@@ -184,14 +196,20 @@ $E = $row_i['equipo'];
         <tr>
             <td colspan="3" class="color" style="padding: 10px; font-size: 16px;">
                 <?php
-                    $buscar = mysqli_query($conn, "SELECT * FROM `informes` WHERE IdOper='$informeId'");
-                        while ($rows = mysqli_fetch_array($buscar)) {
-                            $observaciones = $rows['observaciones'];
+                    // $buscar = mysqli_query($conn, "SELECT * FROM `informes` WHERE IdOper='$informeId'");
+                    //     while ($rows = mysqli_fetch_array($buscar)) {
+                    //         $observaciones = $rows['observaciones'];
                             
-                            $observaciones = preg_replace('/(\d+\.-)/', PHP_EOL . "$1", $observaciones);
+                    //         $observaciones = preg_replace('/(\d+\.-)/', PHP_EOL . "$1", $observaciones);
                             
-                            echo nl2br($observaciones);
-                        }
+                    //         echo nl2br($observaciones);
+                    //     }
+
+                    $buscar = mysqli_query($conn, "SELECT * FROM `detallle_ot` WHERE id = '$informeId'");
+                    while ($rows = mysqli_fetch_array($buscar)){
+                        $observaciones = $rows['brecha_pco'];
+                        echo $observaciones;
+                    }
                 ?>
             </td>
         </tr>
@@ -204,15 +222,35 @@ $E = $row_i['equipo'];
             <td colspan="3" class="color mi-clase-th" style="min-height: 200px; font-size: 14px;">
                 <?php
 
-                    $mejora = $row_i['oport_m'];
+                    $condicionante = mysqli_query( $conn, "SELECT * FROM `detallle_ot` WHERE id = '$informeId'");
+                    $encontrados = mysqli_fetch_array($condicionante);
+                        $mejora = $encontrados['oport_mco'];
+                        
+                        $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
 
-                    // Agrega un salto de línea delante de la frase específica
-                    $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
-
-                    // Agrega un salto de línea después de cada punto seguido de espacio
-                    $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+                        $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
 
                     echo $mejora;
+                ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="pers">
+                Brechas Condicionantes Críticas Básicas
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="color mi-clase-th" style="font-size: 16px;">
+                <?php
+                    $criticas = mysqli_query( $conn, "SELECT * FROM `detallle_ot` WHERE id = '$informeId'");
+                    while($ver = mysqli_fetch_array($criticas)){
+                        echo $ver['brecha_pcr'];
+                        echo '<br>';
+                        $brechaMejora = $ver['oport_mcr'];
+                        $brechaMejora = preg_replace('/DEBE MEJORAR SU CONOCIMINETO DE:/i', '<br>DEBE MEJORAR SU CONOCIMINETO DE:', $mejora);
+                        $brechaMejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+                        echo $brechaMejora;
+                    }
                 ?>
             </td>
         </tr>

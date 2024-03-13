@@ -101,14 +101,17 @@
     $Id_informe = $row['id'];
     $E = $row['equipo'];
     
-    $bre_prac = empty($row['brecha_p']) ? '<td style="white-space: pre-wrap;"><textarea class="tex" name="obs" id="obs" cols="30" rows="5"></textarea></td>' : '<td style="white-space: pre-wrap; min-width: 200px;">' . $row['brecha_p'] . '</td>';
-    $bre_sist = empty($row['brecha_s']) ? '</td><td style="white-space: pre-wrap;"><textarea name="brechas" class="tex" style="min-height: 500px; width: 100%;" id="brechas" cols="30" rows="5"></textarea></td>': '</td><td style="white-space: pre-wrap;">' . $row['brecha_s'] . '</td>';
-    if($row['brecha_s'] != ''){
-        $textAreaOb = $row['oport_m'];
+    $bre_prac = empty($row['brecha_pco']) ? '<td style="white-space: pre-wrap;"><textarea name="brecha_pco" id="brecha_pco" cols="30" rows="5">CONDICIONANTE:</textarea><textarea name="brecha_pcr" id="brecha_pcr" cols="30" rows="5">CRITICAS:</textarea></td>' : '<td style="white-space: pre-wrap; min-width: 200px;">' . $row['brecha_pco'] . '<br><br>'.$row['brecha_pcr'].'</td>';
+
+    if($row['date_brecha'] != '0000-00-00 00:00:00'){
+        $mejora = $row['oport_mco'];
+        $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
+        $textAreaOb = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+
     }else {
-        $textAreaOb = '<textarea name="oport" id="oport" cols="30" rows="8">PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:' . "\n" . 'EN LO REFERENTE A:' . "\n" . 'DE ACUERDO CON: ' . "\n\n" . '</textarea>';
+        $textAreaOb = '<textarea name="oport_mco" id="oport_mco" cols="30" rows="8">PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:' . "\n" . 'EN LO REFERENTE A:' . "\n" . 'DE ACUERDO CON: ' . "\n\n" . 'PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:' . "\n" . 'EN LO REFERENTE A:' . "\n" . 'DE ACUERDO CON: ' . "\n\n" . '</textarea>';
     }
-    ?>
+    ?>&nbsp;&nbsp;
 
         <div class="container-obs">
             <!--datos par enviar-->
@@ -119,9 +122,9 @@
                 // Imprimir la tabla con observaciones en una sola fila y saltos de línea
                 echo '<table width="100%" border="0">
                         <tr>
-                            <th class="pers">Brechas de Competencias en Evaluación Práctica</th>';
+                            <th class="pers" width="60%">Brechas de Competencias en Evaluación Práctica</th>';
                     
-                echo '<th class="colorB">Clasificación</th>';
+                echo '<th class="colorB" width="40%">&nbsp;&nbsp; Comentarios</th>';
                 echo '
                         </tr>';
 
@@ -130,14 +133,14 @@
                     $observaciones = preg_replace('/(\d+\.-)/', "\n$1", $rows['observaciones']);
                     
                     echo '<tr>
-                            <td style="white-space: pre-wrap;" class="color">' . $observaciones . '</td>';
+                            <td style="white-space: pre-wrap;" class="color"><label style="color: red;">' . $observaciones . '</label></td>';
                     echo $bre_prac;
                     echo '</tr>';
                 }
                 echo '<tr>
-                        <th class="pers">Brechas de Competencias en la Prueba de Conocimientos Teóricos</th>';
+                        <th class="pers">Brechas de Competencias en Evaluación Teórica</th>';
                 
-                echo '<th class="colorB">Clasificación</th>';
+                echo '<th class="colorB">&nbsp;&nbsp; Comentarios</th>';
                 echo '
                 </tr>';
                 echo '<tr>
@@ -162,42 +165,96 @@
                         }
                     }
                 
+                    $counter_critica = 0; 
+                    $contador_oper = 0;
+                    $contador_segu = 0;
+
                     for ($i = 0; $i < 20; $i++) {
                         $num_pregunta = $i + 1;
                         $num_respuesta = $i + 1;
                 
                         // Utilizar una consulta parametrizada para evitar inyecciones SQL
-                        $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$E` WHERE `id` = '{$p_values[$i]}' ");
+                        $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$E` WHERE `id` = '{$p_values[$i]}'");
                         $prueba = mysqli_fetch_array($prueba_stmt);
                         $pregunta = $prueba['PREGUNTA'];
+                        $code = $prueba['estado'];
+                        $Tipo = $prueba['tipo'];
+
                         $dato = "R" . $r_values[$i];
                         $correcta = $prueba['id_respuesta_correcta'];
                         $respuesta = $prueba[$dato];
                 
+
+
                         if ($r_values[$i] != $correcta) {
-                            $color = "red";
+                            
                             $estado = "INCORRECTA";
+
+                            if ($code == 'CRITICA') {
+                                $counter_critica++; 
+                                // $color = "red";
+                            }
+    
+                            if($Tipo == 'OPERACIONAL'){
+                                $contador_oper++;
+                            }
+    
+                            if($Tipo == 'SEGURIDAD'){
+                                $contador_segu++;
+                            }
+
+                            $porO = ($contador_oper * 100 )/20;
+                            $porS = ($contador_segu * 100 )/20;
                 
-                            echo "<section class='pregunta'>";
-                            echo "{$num_pregunta}.- " . $pregunta . "<br><br>";
+                            echo "<section class='pregunta' style='color: red;'>";
+                            echo "{$num_pregunta}.- " . $pregunta . " ".$Tipo." (".$code .")<br><br>";
                             echo '</section>';
                         }
                     }
                 }
                 
-                
+                if($counter_critica > 0){
+                    $contadorBrechas = $counter_critica . ' Brechas CRITICAS' . "\n"
+                    .$contador_oper.' OPERACIONALES ' . $porO  . ' %' . "\n"
+                    .$contador_segu.' SEGURIDAD. ' . $porS . ' %';
+                }else{
+                    $contadorBrechas = '';
+                }
+
+                $o = mysqli_query($conn, "SELECT * FROM `detallle_ot` WHERE id='$data'");
+                $Rows =  mysqli_fetch_array($o);
+                // $bre_sist = empty($row['brecha_s']) ? '</td><td style="height: 100%; white-space: pre-wrap;"><textarea name="brechas" class="tex" style="height: 50%; width: 100%; box-sizing: border-box; resize: none;" id="brechas" cols="30" rows="5">CONDICIONANTE: (SEGURIDAD y/o OPERACIONAL)</textarea><textarea name="brechas" class="tex" style="height: 50%; width: 100%; box-sizing: border-box; resize: none;" id="brechas" cols="30" rows="5">CRITICAS</textarea></td>' : '</td><td style="height: 100%; white-space: pre-wrap;">' . $row['brecha_s'] . '</td>';
+                if ($row['oport_mcr'] == '') {
+                    $bre_sist = '</td><td style="height: 100%; white-space: pre-wrap;">
+                                    <textarea name="brecha_tco" id="brecha_tco" class="brecha-textarea" style="height: 50%; width: 100%; box-sizing: border-box; resize: none;" cols="30" rows="20">CONDICIONANTE: (SEGURIDAD y/o OPERACIONAL)</textarea>
+                                    <textarea name="brecha_tcr" id="brecha_tcr" class="brecha-textarea" style="height: 50%; width: 100%; box-sizing: border-box; resize: none;" cols="30" rows="20">CRITICAS</textarea>
+                                </td>';
+                    $final = '<textarea name="oport_mcr" id="oport_mcr" style="width: 100%;" cols="30" rows="8">DEBE MEJORAR SU CONOCIMINETO DE:' . "\n" . 'EN LO REFERENTE A:' . "\n" . 'DE ACUERDO CON: ' . "\n\n" . 'DEBE MEJORAR SU CONOCIMINETO DE:' . "\n" . 'EN LO REFERENTE A:' . "\n" . 'DE ACUERDO CON: ' . "\n\n" . '</textarea>';
+                } else {
+                    $bre_sist = '</td><td style="height: 100%; white-space: pre-wrap;">' . $Rows['brecha_tco'] . ' ' . $Rows['brecha_tcr'] . '</td>';
+                    $final = $Rows['oport_mcr'];
+                    $final = preg_replace('/DEBE MEJORAR SU CONOCIMINETO DE:/i', '<br>DEBE MEJORAR SU CONOCIMINETO DE:', $final);
+                    $final = preg_replace('/\.(?=\s|$)/', ".<br>", $final);
+                }
+
                 echo $bre_sist;
 
                 echo '</tr>';
                 echo '<tr>';
-                echo '<th colspan="2" class="pers">Oportunidades de Desarrollo de Competencias par alcanzar la Exclencia Operacional Practica</th>';
+                echo '<th colspan="2" class="pers">Oportunidades de Desarrollo de Competencias par alcanzar la Exclencia Operacional (CONDICIONANTE)</th>';
                 echo '</tr>';
                 echo '<tr>';
                 echo '<td colspan="2">';
                 echo $textAreaOb;
                 echo '</td>';
                 echo '</tr>';
-                echo '<tr><td colspan="2"><button id="agregarTexto" class="btn btn-info"><i class="fa fa-plus" aria-hidden="true"></i> Agregar Texto</button></td></tr>';
+                // echo '<tr><td colspan="2"><button id="agregarTexto" class="btn btn-info"><i class="fa fa-plus" aria-hidden="true"></i> Agregar Texto</button></td></tr>';
+                echo '<tr>';
+                echo '<th colspan="2" class="pers">Brechas Condicionantes Criticas Básicas (CRITICAS)</th>';
+                echo '</tr>';                
+                echo '<tr>';
+                echo '<td colspan="2">' . $final . '</td>';
+                echo '</tr>';
                 echo '</table>';
             ?>
 
@@ -220,9 +277,12 @@ document.getElementById('agregarTexto').addEventListener('click', function() {
 
 function enviarAccion(accion) {
     var dataInforme = document.getElementById("dataInforme").value;
-    var obsValue = document.getElementById("obs").value;
-    var brechasValue = document.getElementById("brechas").value;
-    var oportValue = document.getElementById("oport").value;
+    var brecha_tco = document.getElementById("brecha_tco").value;
+    var brecha_tcr = document.getElementById("brecha_tcr").value;
+    var brecha_pco = document.getElementById("brecha_pco").value;
+    var brecha_pcr = document.getElementById("brecha_pcr").value;
+    var oport_mco = document.getElementById("oport_mco").value;
+    var oport_mcr = document.getElementById("oport_mcr").value;
     
     if (accion === 'rechazar') {
         // Preguntar al usuario si realmente desea rechazar el servicio
@@ -236,21 +296,21 @@ function enviarAccion(accion) {
         .then((willRechazar) => {
             if (willRechazar) {
                 // El usuario ha confirmado el rechazo, ahora puedes enviar el valor al archivo cierre_ot.php
-                enviarValor(dataInforme, accion, obsValue, brechasValue, oportValue);
+                enviarValor(dataInforme, accion, brecha_tco, brecha_tcr, brecha_pco, brecha_pcr, oport_mco, oport_mcr);
             } else {
                 swal("Tu documento está seguro.");
             }
         });
     } else {
         // Si la acción es aprobar, simplemente envía el valor al archivo cierre_ot.php
-        enviarValor(dataInforme, accion, obsValue, brechasValue, oportValue);
+        enviarValor(dataInforme, accion, brecha_tco, brecha_tcr, brecha_pco, brecha_pcr, oport_mco, oport_mcr);
     }
 }
 
-function enviarValor(dataInforme, accion, obsValue, brechasValue, oportValue) {
+function enviarValor(dataInforme, accion, brecha_tco, brecha_tcr, brecha_pco, brecha_pcr, oport_mco, oport_mcr) {
 
         // Validar que los valores no estén vacíos
-        if (!obsValue || !brechasValue || !oportValue) {
+        if (!brecha_tco || !brecha_tcr || !brecha_pco || !brecha_pcr || !oport_mco || !oport_mcr) {
             // Mostrar un mensaje de error o tomar la acción apropiada
             swal({
                 title: "Advertencia!",
@@ -303,12 +363,10 @@ function enviarValor(dataInforme, accion, obsValue, brechasValue, oportValue) {
         }
     };
 
-    var data = 'dataInforme=' + encodeURIComponent(dataInforme) + '&accion=' + encodeURIComponent(accion) + '&obs=' + encodeURIComponent(obsValue) + '&brechas=' + encodeURIComponent(brechasValue) + '&oport=' + encodeURIComponent(oportValue);
+    var data = 'dataInforme=' + encodeURIComponent(dataInforme) + '&accion=' + encodeURIComponent(accion) + '&brecha_tco=' + encodeURIComponent(brecha_tco) + '&brecha_tcr=' + encodeURIComponent(brecha_tcr) + '&brecha_pco=' + encodeURIComponent(brecha_pco) + '&brecha_pcr=' + encodeURIComponent(brecha_pcr) + '&oport_mco=' + encodeURIComponent(oport_mco) + '&oport_mcr=' + encodeURIComponent(oport_mcr);
     
     xhr.send(data);
 }
-
-
 </script>
 </body>
 </html>

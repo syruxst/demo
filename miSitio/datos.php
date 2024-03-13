@@ -147,6 +147,30 @@ while($ver = mysqli_fetch_array($buscar )){
         #actualizar:hover {
             background-color: #03a4d3; 
         }
+        .lc {
+            color: green;
+            cursor: pointer;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Fondo transparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .example-image {
+            /* Estilo adicional para la imagen de ejemplo */
+            max-width: 80%;
+            max-height: 80%;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
         @media (max-width: 666px) {
             body {
                 padding: 20px;
@@ -252,7 +276,10 @@ while($ver = mysqli_fetch_array($buscar )){
                     <input type="file" id="cv" name="cv" placeholder="Subir CV" class="form-control" accept="application/pdf" title="SOLO SUBIR EN FORMATO PDF" <?php echo $disable; ?>>
                 </div>
                 <div class="col" style="text-align: left;">
-                    <p>Subir Licencia de Conductor</p>
+                    <!-- <p>Subir Licencia de Conductor ver Ej. <i class="fa fa-id-card-o lc" aria-hidden="true" title="VER EJEMPLO"></i></p> -->
+                    <p>Subir Licencia de Conductor ver Ej. 
+                        <i class="fa fa-id-card-o lc" aria-hidden="true" title="VER EJEMPLO" onclick="mostrarEjemplo()"></i>
+                    </p>
                     <input type="file" id="foto" name="foto" placeholder="Subir Foto" class="form-control" accept="image/*" title="SOLO SUBIR EN FORMATO JPG, JPEG, PNG" <?php echo $disable; ?>>
                 </div>
             </div>
@@ -270,6 +297,11 @@ while($ver = mysqli_fetch_array($buscar )){
 </div>
 <div class="loading-overlay" id="loading-overlay">
   <div class="loader"></div>
+</div>
+<div id="overlay" class="overlay" onclick="ocultarEjemplo()">
+    <div id="imagenEjemplo" class="example-image">
+        <img src="../img/licenciaEjemplo.png" width="600" alt="Ejemplo de Licencia de Conductor">
+    </div>
 </div>
 <script>
 //Cargar regiones
@@ -468,6 +500,15 @@ function guardarDatos() {
   });
 }
 
+function mostrarEjemplo() {
+    var overlay = document.getElementById('overlay');
+    overlay.style.display = 'flex';
+}
+
+function ocultarEjemplo() {
+    var overlay = document.getElementById('overlay');
+    overlay.style.display = 'none';
+}
 </script>
 </body>
 </html>

@@ -75,7 +75,7 @@ if (isset($_SESSION['usuario'])) {
 </head>
 <body>
     <div class="logo">
-        <img src="https://operamaq.cl/nuevo/img/LogoPrincipal.png" alt="" width="200" height="90" title="OPERAMAQ" class="logo">
+        <img src="../img/LogoPrincipal.png" alt="" width="200" height="90" title="OPERAMAQ" class="logo">
     </div>
     <center><h1>CREAR EMPRESA</h1></center>
     <hr>

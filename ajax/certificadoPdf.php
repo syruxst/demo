@@ -257,7 +257,7 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
                 <span style="justify-content: center; color: #797D7F;" id="span-center">
                     Centro de Evaluación y Certificación de Competencias Laborales<br>
                     Acreditado por ChileValora - Ley N° 20.267<br>
-                    Resolución Exenta N° xxx
+                    Resolución Exenta N° 59
                 </span>
             </td>
         </tr>
@@ -529,48 +529,60 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
                     El candidato presenta las siguientes Brechas de Competencias Laborales en la Prueba de Conocimientos Teóricos:
                     <br>
                     <?php
-                        $query = "SELECT * FROM examenes WHERE id_oper = ? AND equipo = ? AND date_realizada = ?";
+                        $query = "SELECT * FROM `detallle_ot` WHERE rut = ? AND equipo = ? AND date_out = ?";
                         $stmt = mysqli_prepare($conn, $query);
 
                         if ($stmt) {
                             mysqli_stmt_bind_param($stmt, "sss", $rut, $equipo, $encontrados['date_out']);
                             mysqli_stmt_execute($stmt);
                             $result = mysqli_stmt_get_result($stmt);
-                            $p_values = array();
-                            $r_values = array();
-                        
+
                             while ($row = mysqli_fetch_assoc($result)) {
-                                $resultado = $row['resultado'];
-                        
-                                // Almacenar las preguntas y respuestas en arrays
-                                for ($i = 1; $i <= 20; $i++) {
-                                    $p_values[] = $row['p' . $i];
-                                    $r_values[] = $row['r' . $i];
-                                }
-                            }
-                        
-                            for ($i = 0; $i < 20; $i++) {
-                                $num_pregunta = $i + 1;
-                                $num_respuesta = $i + 1;
-                        
-                                // Utilizar una consulta parametrizada para evitar inyecciones SQL
-                                $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$equipo` WHERE `id` = '{$p_values[$i]}' ");
-                                $prueba = mysqli_fetch_array($prueba_stmt);
-                                $pregunta = $prueba['PREGUNTA'];
-                                $dato = "R" . $r_values[$i];
-                                $correcta = $prueba['id_respuesta_correcta'];
-                                $respuesta = $prueba[$dato];
-                        
-                                if ($r_values[$i] != $correcta) {
-                                    $color = "red";
-                                    $estado = "INCORRECTA";
-                        
-                                    echo "<section class='pregunta'>";
-                                    echo "{$num_pregunta}.- " . $pregunta . "<br><br>";
-                                    echo '</section>';
-                                }
+                                echo '<b>' . $row['brecha_tco'] . '</b>';
                             }
                         }
+                        // $query = "SELECT * FROM examenes WHERE id_oper = ? AND equipo = ? AND date_realizada = ?";
+                        // $stmt = mysqli_prepare($conn, $query);
+
+                        // if ($stmt) {
+                        //     mysqli_stmt_bind_param($stmt, "sss", $rut, $equipo, $encontrados['date_out']);
+                        //     mysqli_stmt_execute($stmt);
+                        //     $result = mysqli_stmt_get_result($stmt);
+                        //     $p_values = array();
+                        //     $r_values = array();
+                        
+                        //     while ($row = mysqli_fetch_assoc($result)) {
+                        //         $resultado = $row['resultado'];
+                        
+                        //         // Almacenar las preguntas y respuestas en arrays
+                        //         for ($i = 1; $i <= 20; $i++) {
+                        //             $p_values[] = $row['p' . $i];
+                        //             $r_values[] = $row['r' . $i];
+                        //         }
+                        //     }
+                        
+                        //     for ($i = 0; $i < 20; $i++) {
+                        //         $num_pregunta = $i + 1;
+                        //         $num_respuesta = $i + 1;
+                        
+                        //         // Utilizar una consulta parametrizada para evitar inyecciones SQL
+                        //         $prueba_stmt = mysqli_query($conn, "SELECT * FROM `$equipo` WHERE `id` = '{$p_values[$i]}' ");
+                        //         $prueba = mysqli_fetch_array($prueba_stmt);
+                        //         $pregunta = $prueba['PREGUNTA'];
+                        //         $dato = "R" . $r_values[$i];
+                        //         $correcta = $prueba['id_respuesta_correcta'];
+                        //         $respuesta = $prueba[$dato];
+                        
+                        //         if ($r_values[$i] != $correcta) {
+                        //             $color = "red";
+                        //             $estado = "INCORRECTA";
+                        
+                        //             echo "<section class='pregunta'>";
+                        //             echo "{$num_pregunta}.- " . $pregunta . "<br><br>";
+                        //             echo '</section>';
+                        //         }
+                        //     }
+                        // }
                     ?>
                 </div>    
             </td>
@@ -582,17 +594,22 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
         </tr>
         <tr>
             <td colspan="2" class="color mi-clase-th" style="padding: 10px; font-size: 16px; height: 200px;">
-                El candidato presenta las siguientes Brechas de Competencias Laborales en la Evaluación Práctica:
+                El candidato presenta las siguientes Brechas de Competencias Laborales en la Prueba de conocimientos practicos:
                 <br>
                 <?php
-                    $buscar = mysqli_query($conn, "SELECT * FROM `informes` WHERE IdOper='$id'");
-                    while ($rows = mysqli_fetch_array($buscar)) {
-                        $observaciones = $rows['observaciones'];
-                        
-                        $observaciones = preg_replace('/(\d+\.-)/', PHP_EOL . "$1", $observaciones);
-                        
-                        echo nl2br($observaciones);
+                    $buscar = mysqli_query($conn, "SELECT * FROM `detallle_ot` WHERE id = '$id'");
+                    while ($rows = mysqli_fetch_array($buscar)){
+                        $observaciones = $rows['brecha_pco'];
+                        echo $observaciones;
                     }
+                    // $buscar = mysqli_query($conn, "SELECT * FROM `informes` WHERE IdOper='$id'");  
+                    // while ($rows = mysqli_fetch_array($buscar)) {
+                    //     $observaciones = $rows['observaciones'];
+                        
+                    //     $observaciones = preg_replace('/(\d+\.-)/', PHP_EOL . "$1", $observaciones);
+                        
+                    //     echo nl2br($observaciones);
+                    // }
                 ?>
             </td>
         </tr>
@@ -605,15 +622,24 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
             <td colspan="2" class="color mi-clase-th" style="height: 200px; font-size: 14px;">
                 <?php
 
-                    $mejora = $encontrados['oport_m'];
+                    $condicionante = mysqli_query( $conn, "SELECT * FROM `detallle_ot` WHERE id = '$id'");
+                    $encontrados = mysqli_fetch_array($condicionante);
+                        $mejora = $encontrados['oport_mco'];
+                        
+                        $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
 
-                    // Agrega un salto de línea delante de la frase específica
-                    $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
-
-                    // Agrega un salto de línea después de cada punto seguido de espacio
-                    $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+                        $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
 
                     echo $mejora;
+                    // $mejora = $encontrados['oport_m'];
+
+                    // // Agrega un salto de línea delante de la frase específica
+                    // $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
+
+                    // // Agrega un salto de línea después de cada punto seguido de espacio
+                    // $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+
+                    // echo $mejora;
                     
                 ?>
             </td>
@@ -671,17 +697,36 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
         </tr>
         <tr>
             <td colspan="2" class="color mi-clase-th" style="font-size: 16px; height: 200px;">
-                <ul>
-                    <li>
-                        El trabajador presenta Brechas Condicionantes Críticas Básicas.
-                    </li>
-                </ul>
-                <b>DEBE MEJORAR SU CONOCIMINETO DE:</b> Ejecutar maniobras de estacionamiento de acuerdo con procedimientos de trabajo.
+
+                * El trabajador presenta Brechas Condicionantes Críticas Básicas <b>TEORICO PRACTICO</b> segun comentario:<br>
+
+                <!-- <b>DEBE MEJORAR SU CONOCIMINETO DE:</b> Ejecutar maniobras de estacionamiento de acuerdo con procedimientos de trabajo.
                 <br>
                 <b>EN LO REFERENTE A:</b> Estacionar el vehiculo/equipo en un lugar pertinente y/o habilitado, medidas de seguridad
                 correspondientes, direccionar ruedas en pendientes y aplicar freno de estacionamiento.
                 <br>
-                <b>DE ACUERDO CON:</b> Procedimiento de conducción.
+                <b>DE ACUERDO CON:</b> Procedimiento de conducción. -->
+                <?php
+                    $criticas = mysqli_query( $conn, "SELECT * FROM `detallle_ot` WHERE id = '$id'");
+                    while($ver = mysqli_fetch_array($criticas)){
+                        echo $ver['brecha_pcr'];
+
+                        $brechaMejora = $ver['oport_mcr'];
+                        $brechaMejora = preg_replace('/DEBE MEJORAR SU CONOCIMINETO DE:/i', '<br>DEBE MEJORAR SU CONOCIMINETO DE:', $mejora);
+                        $brechaMejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+                        echo $brechaMejora;
+                    // $mejora = $encontrados['oport_m'];
+
+                    // // Agrega un salto de línea delante de la frase específica
+                    // $mejora = preg_replace('/PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:/i', '<br>PARA LOGRAR LA EXCELENCIA DEBE MEJORAR SU CONOCIMIENTO DE:', $mejora);
+
+                    // // Agrega un salto de línea después de cada punto seguido de espacio
+                    // $mejora = preg_replace('/\.(?=\s|$)/', ".<br>", $mejora);
+
+                    // echo $mejora;
+                    // echo $ver['oport_mcr'];
+                    }
+                ?>
             </td>
         </tr>
         <tr>
@@ -793,7 +838,7 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
                         <td style="padding-left: 10px;">* Brechas Teóricas</td>
                         <td align="center">
                             <?php
-                                $valorT = ($encontrados['brecha_s'] != "") ? "Tiene" : "No tiene";
+                                $valorT = ($encontrados['brecha_tco'] != "") ? "Tiene" : "No tiene";
                                 echo $valorT;
                                 $valorT2 = ($valorT == "Tiene") ? "Si tiene: Gestionar Plan de tratamiento" : "No tiene: No requiere tratamiento";
                             ?>
@@ -813,7 +858,7 @@ $datePractico = date("d-m-Y", strtotime($datePractico));
                         <td style="padding-left: 10px;">* Brechas Ptáctica</td>
                         <td align="center">
                             <?php
-                                $valorP = ($encontrados['brecha_p'] != "") ? "Tiene" : "No Tiene";
+                                $valorP = ($encontrados['brecha_pco'] != "") ? "Tiene" : "No Tiene";
                                 echo $valorP;
                                 $valorP2 = ($valorP == "Tiene") ? "Si tiene: Gestionar Plan de tratamiento" : "No tiene: No requiere tratamiento";
                             ?>

@@ -12,12 +12,11 @@ if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     exit();
 }
 
-// Obtener el valor de búsqueda
-$valorBusqueda = $_POST['buscar'];
-$empresa = $_POST['empresa'];
-$faena = $_POST['faena'];
 
-// Realizar la consulta SQL
+$valorBusqueda = isset($_POST['buscar']) ? mysqli_real_escape_string($conn, $_POST['buscar']) : '';
+$empresa = isset($_POST['empresa']) ? mysqli_real_escape_string($conn, $_POST['empresa']) : '';
+$faena = isset($_POST['faena']) ? mysqli_real_escape_string($conn, $_POST['faena']) : '';
+
 $sql = "SELECT * FROM `detallle_ot` 
         WHERE (rut LIKE '%$valorBusqueda%' 
             OR nombre LIKE '%$valorBusqueda%' 
@@ -31,7 +30,6 @@ $sql = "SELECT * FROM `detallle_ot`
 
 $result = $conn->query($sql);
 
-// Mostrar los resultados
 if ($result->num_rows > 0) {
     echo "<table width='100%' class='tabla table table-striped' style='font-size: 12px;' border='1'>
             <tr>
@@ -62,7 +60,7 @@ if ($result->num_rows > 0) {
         $iconD = ($row['doc'] == 'SI') ? '<i class="fa fa-check fa-lg" aria-hidden="true" title="DOCUMENTACION REVISADA"></i>' : ($row['doc'] == 'NO' ? '<i class="fa fa-times fa-lg" aria-hidden="true"></i>' : '');
         $iconP = ($row['informe'] != '') ? '<i class="fa fa-check fa-lg" aria-hidden="true" title="PRUEBA PRACTICA REALIZADA"></i>' : '';
 
-        $informe = mysqli_query($conn, "SELECT * FROM `detallle_ot` WHERE id = '$id' AND brecha_s !='' AND brecha_p !='' AND oport_m !=''");
+        $informe = mysqli_query($conn, "SELECT * FROM `detallle_ot` WHERE id = '$id' AND date_brecha !='0000-00-00 00:00:00'");
         if (mysqli_num_rows($informe) > 0) {
             while ($rst = mysqli_fetch_array($informe)) {
                 $info = '<i class="fa fa-file-text-o fa-lg abrir-popup" data-informe="'.$rst['id'].'" aria-hidden="true" title="INFORME DE BRECHAS"></i>';
@@ -71,7 +69,7 @@ if ($result->num_rows > 0) {
                     if($row['info_brechas'] !='' && $row['brecha'] == ''){
                         $vb = '<i class="fa fa-info-circle fa-lg" style="color: #F1C40F;" aria-hidden="true" title="PENDIENTE DE APROBACIÓN '.$rstInf['id'].'"></i>';
                     }elseif($row['info_brechas'] !='' && $row['brecha'] == 'APROBADO'){
-                        $vb = '<i class="fa fa-check fa-lg" aria-hidden="true" title="APROBACIÓN OK '.$rstInf['id'].'"></i>';
+                        $vb = '<i class="fa fa-check fa-lg" aria-hidden="true" title="APROBACIÓN REALIZADA '.$rstInf['id'].'"></i>';
                         $submit = '';
                     }elseif($row['info_brechas'] !='' && $row['brecha'] == 'RECHAZADO'){
                         $vb = '<i class="fa fa-times fa-lg" aria-hidden="true" title="APROBACIÓN RECHAZADA"></i>';
@@ -80,10 +78,11 @@ if ($result->num_rows > 0) {
         } else {
             $info = '';
             $submit = '';
+            $vb = '';
         }
 
         $imgFirma = ($ruta == '') ? '' : '<a href="'.$ruta.'" target="_blank"><i class="fa fa-file-pdf-o ruta fa-lg" aria-hidden="true" style="color: red;"></i></a>';
-        $estado = ($certificate == 'APROBADO') ? '<i class="fa fa-check fa-lg" aria-hidden="true" title="CERTIFICADO APROBADO"></i>' : ($certificate == 'RECHAZADO' ? '<i class="fa fa-times fa-lg" aria-hidden="true" title="CERTIFICADO RECHAZADO"></i>' : '');
+        $estado = ($certificate == 'APROBADO') ? '<i class="fa fa-check fa-lg" aria-hidden="true" title="OPERADOR ACREDITADO"></i>' : ($certificate == 'RECHAZADO' ? '<i class="fa fa-times fa-lg" aria-hidden="true" title="OPERADOR RECHAZADO"></i>' : '');
 
         echo "<tr>
                 <td>" . $row['folio'] . "</td>
@@ -106,7 +105,5 @@ if ($result->num_rows > 0) {
 } else {
     echo "No se encontraron resultados.";
 }
-
-// Cerrar la conexión
 $conn->close();
 ?> 

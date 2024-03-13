@@ -274,7 +274,7 @@ while($encontrado = mysqli_fetch_array($buscar)){
 
                     }
 
-                    if($row['oport_m'] == '') {
+                    if($row['date_brecha'] == '0000-00-00 00:00:00') {
                         $brIcon = 'info-circle';
                         $brColor = '#FAD403';
                         $brData = 'data-brecha="'.$row['id'].'"';

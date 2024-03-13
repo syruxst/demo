@@ -31,7 +31,7 @@
 <body>
 <div class="container">
         <div class="imgenCentral">
-            <img src="https://acreditasys.tech/img/selloagua.png" alt="Logo" width="500px" height="500px">
+            <img src="../img/SelloAguaDos.png" alt="Logo" width="500px" height="500px">
         </div>
     </div>
 </body>

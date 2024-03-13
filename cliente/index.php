@@ -43,7 +43,6 @@ if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     <link rel="icon" type="image/png" sizes="32x32" href="../img/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="../img/icons/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../img/icons/favicon-16x16.png">
-    <link rel="manifest" href="manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="../img/icons/ms-icon-144x144.png">
     <title>:: Plataforma de Clientes ::</title>

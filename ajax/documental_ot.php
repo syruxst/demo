@@ -171,8 +171,8 @@
             </tr>
         </table>
         <div class="container">
-            <a href="https://acreditasys.tech/uploads_op/<?php echo $fila['nombre_archivo'];?>" target="_blank"><div class="item" title="VER CURRICULUM"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> &nbsp; &nbsp; CURRILUM   </div></a>
-            <a href="https://acreditasys.tech/licencias/<?php echo $fila['foto_licencia'];?>" target="_blank"><div class="item" title="VER LICENCIA DE CONDUCIR"><i class="fa fa-address-card-o" aria-hidden="true"></i> &nbsp; &nbsp; LICENCIA CONDUCIR  </div></a>
+            <a href="../uploads_op/<?php echo $fila['nombre_archivo'];?>" target="_blank"><div class="item" title="VER CURRICULUM"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> &nbsp; &nbsp; CURRILUM   </div></a>
+            <a href="../licencias/<?php echo $fila['foto_licencia'];?>" target="_blank"><div class="item" title="VER LICENCIA DE CONDUCIR"><i class="fa fa-address-card-o" aria-hidden="true"></i> &nbsp; &nbsp; LICENCIA CONDUCIR  </div></a>
         </div>
         <label>
             <input type="hidden" name="id" value="<?php echo $doc; ?>">

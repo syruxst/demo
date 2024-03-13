@@ -53,8 +53,9 @@ $date_aprobado = $now->format("Y-m-d");
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verificar si se ha enviado una solicitud POST
-   $rut = $_POST['rut'];
-   $equipo = $_POST['equipo'];
+    $rut = $_POST['rut'];
+    $equipo = $_POST['equipo'];
+    $ot = $_POST['ot'];
 
     //Buscar datos
     $Sqli = "SELECT * FROM `detallle_ot` WHERE rut = '$rut' AND equipo = '$equipo' AND resultado = '' ";
@@ -137,9 +138,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo 'Porcentaje de respuestas correctas: '.$porcentaje.'%<br>';
         echo 'Resultado: '.$resultado.'';  
 
-        $sql = "UPDATE `detallle_ot` SET date_out = ?, resultado = ?, porNota = ?, punNota = ?, contador = ? WHERE rut = ? AND equipo = ?";
+        $sql = "UPDATE `detallle_ot` SET date_out = ?, resultado = ?, porNota = ?, punNota = ?, contador = ? WHERE id = ? rut = ? AND equipo = ?";
         if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("sssssss", $fecha, $resultado, $porcentaje, $nota, $contador, $rut, $equipo);
+            $stmt->bind_param("sssssiss", $fecha, $resultado, $porcentaje, $nota, $contador, $ot, $rut, $equipo);
             $stmt->execute();
             $stmt->close();
         }
@@ -175,9 +176,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //echo 'Porcentaje de respuestas correctas: '.$porcentaje.'%<br>';
         //echo 'Resultado: '.$resultado.'';
 
-        $sql = "UPDATE `detallle_ot` SET date_out = ?, resultado = ?, porNota = ?, punNota = ?, contador = ?  WHERE rut = ? AND equipo = ?";
+        $sql = "UPDATE `detallle_ot` SET date_out = ?, resultado = ?, porNota = ?, punNota = ?, contador = ?  WHERE id = ? AND rut = ? AND equipo = ?";
         if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("sssssss", $fecha, $resultado, $porcentaje, $nota, $contador, $rut, $equipo);
+            $stmt->bind_param("sssssiss", $fecha, $resultado, $porcentaje, $nota, $contador, $ot, $rut, $equipo);
             $stmt->execute();
             $stmt->close();
         }
@@ -216,9 +217,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }else {
             echo '<h3>Se le proporcionará un nuevo examen.</h3>';
-            $clear = mysqli_query($conn, "UPDATE `detallle_ot` SET date_in = '0000-00-00 00:00:00', date_out = '0000-00-00 00:00:00', resultado = '', datefin = '0000-00-00 00:00:00' WHERE rut = '$rut' AND equipo = '$equipo'");
+            $clear = mysqli_query($conn, "UPDATE `detallle_ot` SET date_in = '0000-00-00 00:00:00', date_out = '0000-00-00 00:00:00', resultado = '', datefin = '0000-00-00 00:00:00' WHERE id = '$ot' AND rut = '$rut' AND equipo = '$equipo'");
         }
-    }
+    } 
     ?>
 <h3></h3>
 </div>

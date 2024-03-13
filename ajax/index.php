@@ -130,7 +130,11 @@ if (isset($_SESSION['usuario'])) {
                         <li rel="inn/inn.php">CALIDAD INN</li>
                     </ul>
                 </li>
-            <?php } if($perfil == 'administrador'){ ?>
+            <?php } if($perfil == 'administrador'){
+                if($usuario == 'dugalde'){
+                   echo '<li rel="maestro/home.php/">MAESTRO <i class="fa fa-cog" aria-hidden="true"></i></li>';
+                }
+            ?>
                 <li rel="home.php">HOME <i class="fa fa-home" aria-hidden="true"></i></li>
                 <li rel="data_kpi.php">KPI <i class="fa fa-bar-chart" aria-hidden="true"></i></li>
                 <li>RENTAL OPERADORES
